@@ -11,18 +11,11 @@ from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
 
-if os.name == 'nt':
-    image_path = Path(r'/home/user/damage/data/Numpy')
-    lable_path = Path(r'/home/user/damage/Mask')
-    
-else:
-    image_path = Path(r'C:\Users\employee\Desktop\damage\data\Numpy')
-    lable_path = Path(r'C:\Users\employee\Desktop\damage\Mask')
 
 
 # Nobs and dials
 limit_size = 999999 
-epochs = 50000
+epochs = 100 
 batch_size = 1
 optimizer = 'adam'
 
@@ -43,5 +36,6 @@ for i in range(epochs):
               epochs=1, 
               callbacks=[tensorboard_callback]
               )
+
 save_model(model, epochs, batch_size)
 

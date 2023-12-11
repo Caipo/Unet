@@ -7,13 +7,10 @@ import os
 import csv
 
 def save_model(model, epochs, batch_size):
-    if os.name == 'nt':
-        save_path = Path(r'C:\Users\employee\Desktop\damage\Save')
-        index = str(len(glob(str(save_path) + '/*.keras')))
-    else:
-        save_path = Path('/home/user/save')
-        index = str(len(glob(str(save_path) + '/*.keras')))
+    save_path =  Path(os.getcwd()) / 'Save'
+    
 
+    index = str(len(glob(str(save_path) + '/*.keras')))
     model.save(str(save_path) + '/' + index + '.keras')
     
     meta = {'Index': index,
@@ -29,19 +26,26 @@ def save_model(model, epochs, batch_size):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
+def load_train():
+    return
 
 def load_data(batch_size):
     if os.name == 'nt':
-        image_path = Path(r'C:\Users\employee\Desktop\damage\data\Numpy')
-        lable_path = Path(r'C:\Users\employee\Desktop\damage\Mask')
-        
-    else:
         image_path = Path(r'/home/user/damage/data/Numpy')
         lable_path = Path(r'/home/user/damage/Mask')
+
+    elif os.name == 'posix':
+        image_path = Path(r'/Users/work/Data/damage/Numpy')
+        lable_path = Path(r'/Users/work/Data/damage/Mask')
+
+    else:
+        image_path = Path(r'C:\Users\employee\Desktop\damage\data\Numpy')
+        lable_path = Path(r'C:\Users\employee\Desktop\damage\Mask')
     
 
     images = list() 
     masks = list()
+    data = list()
 
     files =  sample(list(glob( str(image_path) + '/*.npy')), batch_size)
 
@@ -61,10 +65,7 @@ def load_data(batch_size):
                 s = size 
                 images.append(arry[s * x: s * (x+1), s * y : s * (y+1),:]) 
                 m = mask[s * x: s * (x+1), s * y : s * (y+1)]
-                m = np.rot90(m)
-                m = np.flipud(m)
                 masks.append(m)
-          
-      
 
+      
     return np.array(images, dtype='float32'), np.array(masks, dtype='float32')
