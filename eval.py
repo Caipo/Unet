@@ -32,12 +32,9 @@ print('Loading Data Set')
 
 
 def make_picture(image, mask):
-    global  model 
     output_path = Path(os.getcwd(),  'Output')
 
-
-#    for idx, pred in enumerate(model.predict(image)):
-    for idx, pred in enumerate(image):
+    for idx, pred in enumerate(model.predict(image)):
         # Prediction Image
         img1 = image[idx]
         img1 = (img1 * 255).astype(np.uint8) 
@@ -82,6 +79,10 @@ if __name__ == '__main__':
     model = tf.keras.models.load_model(str(save_path) +  f'/{model_id}.keras')
 
     img, mask = load_data(10)
-    breakpoint()
+    img = img.reshape( img.shape[0] * img.shape[1], img.shape[2],
+    img.shape[3], img.shape[4])
+
+    mask = mask.reshape( mask.shape[0] * mask.shape[1], mask.shape[2],
+    mask.shape[3], mask.shape[4])
     make_picture(img, mask)
 

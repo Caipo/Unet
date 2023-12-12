@@ -1,6 +1,7 @@
 from pathlib import Path
 from datetime import date
 from glob import glob
+from patchify import patchify
 from random import sample 
 import numpy as np
 import os
@@ -59,13 +60,18 @@ def load_data(batch_size):
         height, width, _ = arry.shape
         arry = arry.astype('float32') / 255
         mask = np.load(str(lable_path) + '/' + pth.name)
-
+        '''
         for x in range(height // size):
             for y in range(width // size):
                 s = size 
                 images.append(arry[s * x: s * (x+1), s * y : s * (y+1),:]) 
                 m = mask[s * x: s * (x+1), s * y : s * (y+1)]
                 masks.append(m)
+        '''
+        img_patches  = np.squeeze(patchify(arry, (572, 572, 3), step = 572))
+        images.append(img_patches.reshape(6, 572, 572, 3))
+        
+        msk_patches  = np.squeeze(patchify(mask, (572, 572, 2), step = 572))
+        masks.append(msk_patches.reshape(6, 572, 572, 2))
 
-      
     return np.array(images, dtype='float32'), np.array(masks, dtype='float32')
