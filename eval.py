@@ -39,7 +39,6 @@ def make_picture(image, mask):
         img1 = image[idx]
         img1 = (img1 * 255).astype(np.uint8) 
         raw_img = np.copy(img1) 
-        #pred = pred.astype('int32')
         img1[pred[:,:,0] >= 0.1] = (255, 0, 0)
        
         m = mask[idx]

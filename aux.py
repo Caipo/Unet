@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from pathlib import Path
 from datetime import date
 from glob import glob
@@ -7,13 +8,19 @@ import numpy as np
 import os
 import csv
 
-def save_model(model, epochs, batch_size):
+def save_model(model, epochs, batch_size, losses):
+
+
     save_path =  Path(os.getcwd()) / 'Save'
     
 
     index = str(len(glob(str(save_path) + '/*.keras')))
-    model.save(str(save_path) + '/' + index + '.keras')
+
     
+    xs = [x for x in range(len(losses))]
+    plt.plot(xs, losses)
+    plt.savefig(f'Save/{index}_losses.png')
+
     meta = {'Index': index,
     'Type' : 'Unet', 
     'Optimizer' : 'Adam',
@@ -36,8 +43,8 @@ def load_data(batch_size):
         lable_path = Path(r'/home/user/damage/Mask')
 
     elif os.name == 'posix':
-        image_path = Path(r'/Users/work/Data/damage/Numpy')
-        lable_path = Path(r'/Users/work/Data/damage/Mask')
+        image_path = Path(r'/home/nick/Data/Numpy')
+        lable_path = Path(r'/home/nick/Data/Mask')
 
     else:
         image_path = Path(r'C:\Users\employee\Desktop\damage\data\Numpy')
@@ -60,14 +67,7 @@ def load_data(batch_size):
         height, width, _ = arry.shape
         arry = arry.astype('float32') / 255
         mask = np.load(str(lable_path) + '/' + pth.name)
-        '''
-        for x in range(height // size):
-            for y in range(width // size):
-                s = size 
-                images.append(arry[s * x: s * (x+1), s * y : s * (y+1),:]) 
-                m = mask[s * x: s * (x+1), s * y : s * (y+1)]
-                masks.append(m)
-        '''
+
         img_patches  = np.squeeze(patchify(arry, (572, 572, 3), step = 572))
         images.append(img_patches.reshape(6, 572, 572, 3))
         
