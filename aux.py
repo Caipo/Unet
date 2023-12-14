@@ -5,21 +5,19 @@ from glob import glob
 from patchify import patchify
 from random import sample 
 import numpy as np
+import math
 import os
 import csv
 
 def save_model(model, epochs, batch_size, losses):
-
-
     save_path =  Path(os.getcwd()) / 'Save'
-    
 
     index = str(len(glob(str(save_path) + '/*.keras')))
 
-    
+    model.save(str(save_path) + '/' + index +'.keras') 
     xs = [x for x in range(len(losses))]
     plt.plot(xs, losses)
-    plt.savefig(f'Save/{index}_losses.png')
+    plt.savefig(f'Save/Losses/{index}_losses.png')
 
     meta = {'Index': index,
     'Type' : 'Unet', 
@@ -37,7 +35,7 @@ def save_model(model, epochs, batch_size, losses):
 def load_train():
     return
 
-def load_data(batch_size):
+def load_data(batch_size = 6):
     if os.name == 'nt':
         image_path = Path(r'/home/user/damage/data/Numpy')
         lable_path = Path(r'/home/user/damage/Mask')
@@ -55,7 +53,7 @@ def load_data(batch_size):
     masks = list()
     data = list()
 
-    files =  sample(list(glob( str(image_path) + '/*.npy')), batch_size)
+    files =  list(glob( str(image_path) + '/*.npy'))
 
 
     size = 572
@@ -68,10 +66,13 @@ def load_data(batch_size):
         arry = arry.astype('float32') / 255
         mask = np.load(str(lable_path) + '/' + pth.name)
 
-        img_patches  = np.squeeze(patchify(arry, (572, 572, 3), step = 572))
-        images.append(img_patches.reshape(6, 572, 572, 3))
+        #step_size = lambda x : int(( size * math.ceil(x / size) - x) / (x // size))
+        #step_ = (size - step_size(height) + 1, size - step_size(width))
+        step_ = 572
         
-        msk_patches  = np.squeeze(patchify(mask, (572, 572, 2), step = 572))
-        masks.append(msk_patches.reshape(6, 572, 572, 2))
+        img  = np.squeeze(patchify(arry, (572, 572, 3), step=step_))
+        msk  = np.squeeze(patchify(mask, (572, 572, 2), step=step_))
 
-    return np.array(images, dtype='float32'), np.array(masks, dtype='float32')
+        for i in range(len(msk)):
+            for j in range(i):
+                yield img[i][j], msk[i][j]

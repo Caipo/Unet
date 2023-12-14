@@ -1,4 +1,5 @@
-model_id = input('Pick Model: ')
+if __name__ == '__main__':
+    model_id = input('Pick Model: ')
 
 print('Starting Imports')
 import numpy as np
@@ -31,15 +32,19 @@ masks = list()
 print('Loading Data Set')
 
 
-def make_picture(image, mask):
+def make_picture(model, image, mask):
     output_path = Path(os.getcwd(),  'Output')
+    image = np.array(image)
+    mask = np.array(mask)
+    
 
     for idx, pred in enumerate(model.predict(image)):
+
         # Prediction Image
         img1 = image[idx]
         img1 = (img1 * 255).astype(np.uint8) 
         raw_img = np.copy(img1) 
-        img1[pred[:,:,0] >= 0.1] = (255, 0, 0)
+        img1[pred[:,:,0] >= 0.05] = (255, 0, 0)
        
         m = mask[idx]
         img2 = image[idx]
@@ -76,12 +81,17 @@ if __name__ == '__main__':
     print('Loading Model')
     save_path = Path('.',  'Save' )
     model = tf.keras.models.load_model(str(save_path) +  f'/{model_id}.keras')
-
+    
+    '''
     img, mask = load_data(10)
     img = img.reshape( img.shape[0] * img.shape[1], img.shape[2],
     img.shape[3], img.shape[4])
 
     mask = mask.reshape( mask.shape[0] * mask.shape[1], mask.shape[2],
     mask.shape[3], mask.shape[4])
-    make_picture(img, mask)
+    '''
+    
+    dataset = tf.data.Dataset.from_generator(load_data, output_types=(tf.float32, tf.float32))
+    for images, masks in dataset.batch(50).take(1):
+        make_picture(model, images, masks)
 

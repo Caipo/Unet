@@ -15,10 +15,10 @@ def down(input_net, layer):
     filt = pow(2, layer + 5)
 
     con1 = Conv2D(filt, (3,3), strides=(1,1), activation=act, padding=pad)(input_net)
-#    con1 = CenterCrop(height - 2, height - 2)(con1)
+    con1 = CenterCrop(height - 2, height - 2)(con1)
 
     con2 = Conv2D(filt, (3,3), strides=(1,1), activation=act, padding=pad)(con1)
-#    con2 = CenterCrop(height -4, height - 4)(con2)
+    con2 = CenterCrop(height -4, height - 4)(con2)
     
     return con2
 
@@ -45,16 +45,16 @@ def unet():
     act = 'relu'
 
     d1 = down(input_net, 1)
-    max1 = MaxPooling2D((2,2), (2,2), padding=pool_pad)(d1)
+    max1 = MaxPooling2D((2,2), (2,2))(d1)
 
     d2 = down(max1, 2)
-    max2 = MaxPooling2D((2,2), (2,2), padding=pool_pad)(d2)
+    max2 = MaxPooling2D((2,2), (2,2))(d2)
 
     d3 = down(max2, 3)
-    max3 = MaxPooling2D((2,2), (2,2), padding=pool_pad)(d3)
+    max3 = MaxPooling2D((2,2), (2,2))(d3)
 
     d4 = down(max3, 4)
-    max4 = MaxPooling2D((2,2), (2,2), padding=pool_pad)(d4)
+    max4 = MaxPooling2D((2,2), (2,2))(d4)
 
     d5 = down(max4, 5)
     con1 = Conv2DTranspose(512, 3, 2, padding=pool_pad)(d5)
@@ -69,9 +69,8 @@ def unet():
     con4 = Conv2DTranspose(64, 3, 2, padding=pool_pad)(u3)
     
     u4 = up(con4, d1, 4)
-    last_con = Conv2D(2, (1,1), strides=(1,1), activation='softmax', padding='same')(u4)
+    last_con = Conv2D(1, (1,1), strides=(1,1), activation='softmax', padding='same')(u4)
+
     output = tf.image.resize(last_con, [572, 572]) 
-    
     model = Model(inputs = input_net, outputs = output)
     return model
-
