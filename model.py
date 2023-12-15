@@ -1,77 +1,65 @@
 import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Concatenate, Reshape, Conv2DTranspose, UpSampling2D 
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, \
+Concatenate, Input, Conv2DTranspose, Dropout
+
 from tensorflow.keras.layers.experimental.preprocessing import CenterCrop
-from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 
-def down(input_net, layer):
-    pad = 'same'
-    act = 'relu'
 
-    height = input_net.shape[1]
-    width = input_net.shape[2]
+def double_conv(input_layer, filt ):
+    conv_a = Conv2D(filt, (3,3), activation='relu', padding='same')(input_layer)
+    return Conv2D(filt, (3,3), activation='relu', padding='same')(conv_a)
 
-    filt = pow(2, layer + 5)
+def down(input_layer, filt):
+    return double_conv(input_layer, filt)
 
-    con1 = Conv2D(filt, (3,3), strides=(1,1), activation=act, padding=pad)(input_net)
-#    con1 = CenterCrop(height - 2, height - 2)(con1)
-
-    con2 = Conv2D(filt, (3,3), strides=(1,1), activation=act, padding=pad)(con1)
-#    con2 = CenterCrop(height -4, height - 4)(con2)
-    
-    return con2
-
-def up(input_net, con, layer):
-    pad = 'same'
-    act = 'relu'
-
-    height = input_net.shape[1]
-    width = input_net.shape[2]
-
-    cat1 = Concatenate()([CenterCrop(height, width)(con), input_net ])
-
-    con1 = Conv2D(1024 // pow(2, layer), (3,3), strides=(1,1), activation=act, padding=pad)(cat1)
-#    con1 = CenterCrop(height - 2, height - 2)(con1)
-
-    con2 = Conv2D(1024 // pow(2, layer), (3,3), strides=(1,1), activation=act, padding=pad)(con1)
-#    con2 = CenterCrop(height - 4, height - 4)(con2)
-    return con2
+def up(input_layer, skip, filt):
+    skip = CenterCrop(input_layer.shape[1], input_layer.shape[2])(skip)
+    cat = Concatenate()([input_layer, skip])
+    cat = Dropout(0.5)(cat)
+    return double_conv(cat, filt)
 
 def unet():
-    input_net = Input((572,572,3), dtype = 'float32')
+    image = Input((572,572,3), dtype = 'float32')
+
+    # ENCODING 
+    encoding = list()
+    for i in range(4):
+        filt = pow(2, i + 6)
+        if i == 0:
+            down_block = down(image, filt)
+            drop = 0.25
+
+        else:
+            down_block = down(pool, filt)
+            drop = 0.5
+
+        encoding.append(down_block)
+        pool = MaxPooling2D((2,2))(down_block)
+        pool = Dropout(drop)(pool)
+
     
-    pool_pad = 'same'
-    act = 'relu'
+    bottom = double_conv(pool, filt = 1024)
+   
+    # DECODING 
+    decoding = list()
+    for i in range(4):
+        filt = 1024 // pow(2, i + 1)
 
-    d1 = down(input_net, 1)
-    max1 = MaxPooling2D((2,2), (2,2))(d1)
+        if i == 0:
+            layer = bottom
+        else:
+            layer = up_block
 
-    d2 = down(max1, 2)
-    max2 = MaxPooling2D((2,2), (2,2))(d2)
+        conv = Conv2DTranspose(filt, (3,3), strides=(2,2), padding='same')(layer) 
 
-    d3 = down(max2, 3)
-    max3 = MaxPooling2D((2,2), (2,2))(d3)
+        up_block = up(conv, encoding[-1 * (i + 1)], filt)
+        decoding.append(up_block) 
 
-    d4 = down(max3, 4)
-    max4 = MaxPooling2D((2,2), (2,2))(d4)
 
-    d5 = down(max4, 5)
-    con1 = Conv2DTranspose(512, 3, 2, padding=pool_pad)(d5)
+    last_conv = Conv2D(2, (1,1), padding='same', activation='sigmoid')(decoding[-1])
+    mask = tf.image.resize(last_conv, [572, 572])
+    return Model(inputs = image, outputs=mask)
 
-    u1 = up(con1, d4, 1)
-    con2 = Conv2DTranspose(256, 3, 2, padding=pool_pad)(u1)
-
-    u2 = up(con2, d3, 2)
-    con3 = Conv2DTranspose(128, 3, 2, padding=pool_pad)(u2)
-
-    u3 = up(con3, d2, 3)
-    con4 = Conv2DTranspose(64, 3, 2, padding=pool_pad)(u3)
-    
-    u4 = up(con4, d1, 4)
-    last_con = Conv2D(2, (1,1), strides=(1,1), activation='softmax', padding='same')(u4)
-    
-    breakpoint()
-    output = tf.image.resize(last_con, [572, 572]) 
-    model = Model(inputs = input_net, outputs = output)
-    return model
+if __name__ == '__main__':
+    unet()

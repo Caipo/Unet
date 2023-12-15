@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from pathlib import Path
-from model2 import unet
+from model import unet
 from aux import save_model, load_data
 from evaluate import make_picture
 from tqdm import tqdm

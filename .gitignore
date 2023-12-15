@@ -1,3 +1,5 @@
 Save/
 logs/
 Output/
+**.sw*
+.DS_Store
