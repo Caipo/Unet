@@ -73,6 +73,7 @@ def load_data(batch_size = 6):
         img  = np.squeeze(patchify(arry, (572, 572, 3), step=step_))
         msk  = np.squeeze(patchify(mask, (572, 572, 2), step=step_))
 
+
         for i in range(len(msk)):
             for j in range(i):
                 yield img[i][j], msk[i][j]
