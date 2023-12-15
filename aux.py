@@ -4,7 +4,7 @@ from datetime import date
 from glob import glob
 from patchify import patchify
 from random import sample 
-from machine import Machine
+from machines import Machine
 import numpy as np
 import math
 import os
@@ -38,8 +38,8 @@ def load_train():
 
 def load_data():
     machine = Machine() 
-    image_path = Machine().image_path
-    lable_path = Machine().label_path 
+    image_path = machine.image_path
+    lable_path = machine.label_path 
 
     images = list() 
     masks = list()

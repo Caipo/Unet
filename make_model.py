@@ -10,7 +10,7 @@ from evaluate import make_picture
 from tqdm import tqdm
 from keras.losses import BinaryCrossentropy
 from keras.metrics import Recall, IoU
-from keras.optimizers import Adam
+from keras.optimizers.legacy import Adam
 
 # Nobs and dials
 epochs = 50 
@@ -30,7 +30,6 @@ model.compile(optimizer=Adam(learning_rate=0.001),
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs')
 
 print('Fitting Model')
-#Data gen
 dataset = tf.data.Dataset.from_generator(load_data, output_types=(tf.float32, tf.float32))
 
 # For loss Graph

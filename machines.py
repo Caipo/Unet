@@ -4,12 +4,14 @@ from pathlib import Path
 class Machine():
     def __init__(self):
         if platform.system() == 'Darwin':
-            self.image_path = Path(r'/home/user/damage/data/Numpy')
-            self.lable_path = Path(r'/home/user/damage/Mask')
+            
+            base = Path(r'/Users/work/Data/damage')
+            self.image_path = base / 'Numpy' 
+            self.label_path = base / 'Mask'
 
-        elif name == 'Linux'
+        elif platform.system() == 'Linux':
             self.image_path = Path(r'/home/nick/Data/Numpy')
-            self.lable_path = Path(r'/home/nick/Data/Mask')
+            self.label_path = Path(r'/home/nick/Data/Mask')
 
 
 
