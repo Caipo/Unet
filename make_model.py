@@ -2,55 +2,52 @@ print('Imports')
 import os
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
-from pathlib import Path
-from model import unet
-from aux import save_model, load_data
-from evaluate import make_picture
-from tqdm import tqdm
+from utils.model import unet
+from utils.aux import save_model, load_data
+from utils.evaluate import make_picture
 from keras.losses import BinaryCrossentropy
 from keras.metrics import Recall, IoU
 from keras.optimizers.legacy import Adam
 
 # Nobs and dials
 epochs = 50 
-batch_size = 6 
+batch_size = 16 
 optimizer = 'adam'
 learning_rate = 0.001
 
-
-model = unet()
 print('Compling Model')
-model.compile(optimizer=Adam(learning_rate=0.001),
+model = unet()
+model.compile(optimizer=Adam(learning_rate=learning_rate),
               loss = BinaryCrossentropy(),
-              metrics = [IoU(num_classes=2, target_class_ids=[0]),
+              metrics = [IoU(num_classes=2, target_class_ids=[0]), \
                          Recall()
-                        ])
+                        ]
+              )
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs')
 
-print('Fitting Model')
-dataset = tf.data.Dataset.from_generator(load_data, output_types=(tf.float32, tf.float32))
+print('Generating data set')
+dataset = tf.data.Dataset.from_generator(load_data, \ 
+                                         output_types=(tf.float32, tf.float32))
 
+print('Fitting Model')
 # For loss Graph
-i = 0
-losses = list()
-temp = list()
-for images, masks in dataset.batch(16).take(1).repeat(500):
+for images, masks in dataset.batch(batch_size).take(9999).repeat(epochs):
     model.fit(images,
               masks,
               epochs=1, 
               callbacks=[tensorboard_callback]
               )
-    i += 1
-    temp.append(float(model.history.history['loss'][0]))
 
-    if i % 10 == 0:
-        losses.append( np.mean(np.array(temp)))
-        temp = list()
+    # Loss plot data 
+    losses.append(float(model.history.history['loss'][0]))
 
+print('Saving Model')
+# Saves the model + meta data and loss plot 
 save_model(model, epochs, batch_size, losses)
 
+print('Making Predictions')
+# Sample predictions from the train set
 for images, masks in dataset.batch(50).take(1):
     make_picture(model, images, masks)
 

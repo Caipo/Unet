@@ -13,9 +13,10 @@ import csv
 def save_model(model, epochs, batch_size, losses):
     save_path =  Path(os.getcwd()) / 'Save'
 
-    index = str(len(glob(str(save_path) + '/*.keras')))
-
+    index = str(len(glob(str(save_path) + '/*.keras'))) # For refrence 
     model.save(str(save_path) + '/' + index +'.keras') 
+
+    # Loss Plot
     xs = [x for x in range(len(losses))]
     plt.plot(xs, losses)
     plt.savefig(f'Save/Losses/{index}_losses.png')
@@ -49,23 +50,23 @@ def load_data():
 
 
     size = 572
-    for pth in files:
+    for path in files:
 
-        pth = Path(pth)
-        arry = np.load(pth)
+        path = np.load(Path(path))
+        mask = np.load(str(lable_path) + '/' + Path(path).name)
 
         height, width, _ = arry.shape
-        arry = arry.astype('float32') / 255
-        mask = np.load(str(lable_path) + '/' + pth.name)
+        image = image.astype('float32') / 255
 
+        # Over lap code not ready yet
         #step_size = lambda x : int(( size * math.ceil(x / size) - x) / (x // size))
         #step_ = (size - step_size(height) + 1, size - step_size(width))
-        step_ = 572
+        step_size = 572
         
-        img  = np.squeeze(patchify(arry, (572, 572, 3), step=step_))
-        msk  = np.squeeze(patchify(mask, (572, 572, 2), step=step_))
+        image_patched = np.squeeze(patchify(arry, (572, 572, 3), step=step_size))
+        mask_patched = np.squeeze(patchify(mask, (572, 572, 2), step=step_size))
 
 
-        for i in range(len(msk)):
-            for j in range(i):
-                yield img[i][j], msk[i][j]
+        for row in range(len(msk)):
+            for col in range(i):
+                yield img[row][col], msk[row][col]
