@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, \
-Concatenate, Input, Conv2DTranspose, Dropout
+Concatenate, Input, Conv2DTranspose, Dropout, BatchNormalization
 
 from tensorflow.keras.layers.experimental.preprocessing import CenterCrop
 from tensorflow.keras.models import Model
@@ -8,7 +8,10 @@ from tensorflow.keras.models import Model
 
 def double_conv(input_layer, filt ):
     conv_a = Conv2D(filt, (3,3), activation='relu', padding='same')(input_layer)
-    return Conv2D(filt, (3,3), activation='relu', padding='same')(conv_a)
+    conv_a = BatchNormalization()(conv_a)
+    conv_b = Conv2D(filt, (3,3), activation='relu', padding='same')(conv_a)
+    conv_b = BatchNormalization()(conv_b)
+    return conv_b
 
 def down(input_layer, filt):
     return double_conv(input_layer, filt)

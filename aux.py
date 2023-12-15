@@ -4,6 +4,7 @@ from datetime import date
 from glob import glob
 from patchify import patchify
 from random import sample 
+from machine import Machine
 import numpy as np
 import math
 import os
@@ -35,19 +36,10 @@ def save_model(model, epochs, batch_size, losses):
 def load_train():
     return
 
-def load_data(batch_size = 6):
-    if os.name == 'nt':
-        image_path = Path(r'/home/user/damage/data/Numpy')
-        lable_path = Path(r'/home/user/damage/Mask')
-
-    elif os.name == 'posix':
-        image_path = Path(r'/home/nick/Data/Numpy')
-        lable_path = Path(r'/home/nick/Data/Mask')
-
-    else:
-        image_path = Path(r'C:\Users\employee\Desktop\damage\data\Numpy')
-        lable_path = Path(r'C:\Users\employee\Desktop\damage\Mask')
-    
+def load_data():
+    machine = Machine() 
+    image_path = Machine().image_path
+    lable_path = Machine().label_path 
 
     images = list() 
     masks = list()
