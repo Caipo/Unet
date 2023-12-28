@@ -2,7 +2,7 @@ print('Imports')
 import os
 import numpy as np
 import tensorflow as tf
-from utils.model import unet
+from model import unet
 from utils.aux import save_model, load_data
 from utils.evaluate import make_picture
 from keras.losses import BinaryCrossentropy
@@ -19,7 +19,7 @@ print('Compling Model')
 model = unet()
 model.compile(optimizer=Adam(learning_rate=learning_rate),
               loss = BinaryCrossentropy(),
-              metrics = [IoU(num_classes=2, target_class_ids=[0]), \
+              metrics = [IoU(num_classes=2, target_class_ids=[0]), 
                          Recall()
                         ]
               )
@@ -27,7 +27,7 @@ model.compile(optimizer=Adam(learning_rate=learning_rate),
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./logs')
 
 print('Generating data set')
-dataset = tf.data.Dataset.from_generator(load_data, \ 
+dataset = tf.data.Dataset.from_generator(load_data,  
                                          output_types=(tf.float32, tf.float32))
 
 print('Fitting Model')

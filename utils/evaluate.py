@@ -10,7 +10,7 @@ from glob import glob
 from model import unet 
 from PIL import Image
 from datetime import date
-from aux import load_data
+from utils.aux import load_data
 import os
 import csv
 

@@ -4,7 +4,7 @@ from datetime import date
 from glob import glob
 from patchify import patchify
 from random import sample 
-from machines import Machine
+from utils.machines import Machine
 import numpy as np
 import math
 import os
@@ -34,8 +34,6 @@ def save_model(model, epochs, batch_size, losses):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
-def load_train():
-    return
 
 def load_data():
     machine = Machine() 
@@ -45,28 +43,35 @@ def load_data():
     images = list() 
     masks = list()
     data = list()
-
     files =  list(glob( str(image_path) + '/*.npy'))
 
 
     size = 572
     for path in files:
+        # Loading
+        image = np.load(Path(path))
+        mask = np.load(str(lable_path) + '/' + str(Path(path).name))
 
-        path = np.load(Path(path))
-        mask = np.load(str(lable_path) + '/' + Path(path).name)
+        height, width, _ = image.shape
 
-        height, width, _ = arry.shape
+        # Normalizing 
         image = image.astype('float32') / 255
+       
+        # Padding 
+        pad_height =  math.ceil(height / size) * size - height 
+        pad_width =  math.ceil(width / size) * size - width 
 
-        # Over lap code not ready yet
-        #step_size = lambda x : int(( size * math.ceil(x / size) - x) / (x // size))
-        #step_ = (size - step_size(height) + 1, size - step_size(width))
+        image = np.pad(image, [(0,pad_height), (0, pad_width), (0,0)])
+        mask = np.pad(mask, [(0,pad_height), (0, pad_width), (0,0)])
+
         step_size = 572
         
-        image_patched = np.squeeze(patchify(arry, (572, 572, 3), step=step_size))
+        # Patching
+        image_patched = np.squeeze(patchify(image, (572, 572, 3), step=step_size))
         mask_patched = np.squeeze(patchify(mask, (572, 572, 2), step=step_size))
 
-
-        for row in range(len(msk)):
-            for col in range(i):
-                yield img[row][col], msk[row][col]
+        
+    
+        for row in range(len(mask_patched)):
+            for col in range(row):
+                yield image_patched[row][col], mask_patched[row][col]
