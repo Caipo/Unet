@@ -6,12 +6,12 @@ from model import unet
 from utils.aux import save_model, load_data
 from utils.evaluate import make_picture
 from keras.losses import BinaryCrossentropy
-from keras.metrics import Recall, IoU
+from keras.metrics import Recall, IoU, Accuracy
 from keras.optimizers.legacy import Adam
 
 # Nobs and dials
-epochs = 50 
-batch_size = 16 
+epochs = 1000 
+batch_size = 1 
 optimizer = 'adam'
 learning_rate = 0.001
 
@@ -20,7 +20,8 @@ model = unet()
 model.compile(optimizer=Adam(learning_rate=learning_rate),
               loss = BinaryCrossentropy(),
               metrics = [IoU(num_classes=2, target_class_ids=[0]), 
-                         Recall()
+                         Recall(),
+                         Accuracy()
                         ]
               )
 
@@ -31,8 +32,9 @@ dataset = tf.data.Dataset.from_generator(load_data,
                                          output_types=(tf.float32, tf.float32))
 
 print('Fitting Model')
+losses = []
 # For loss Graph
-for images, masks in dataset.batch(batch_size).take(9999).repeat(epochs):
+for images, masks in dataset.batch(batch_size).take(99999).repeat(epochs):
     model.fit(images,
               masks,
               epochs=1, 
@@ -48,6 +50,6 @@ save_model(model, epochs, batch_size, losses)
 
 print('Making Predictions')
 # Sample predictions from the train set
-for images, masks in dataset.batch(50).take(1):
+for images, masks in dataset.batch(20).take(1):
     make_picture(model, images, masks)
 

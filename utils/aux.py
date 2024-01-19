@@ -34,11 +34,16 @@ def save_model(model, epochs, batch_size, losses):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
-
-def load_data():
+def load_data(test = False):
     machine = Machine() 
-    image_path = machine.image_path
-    lable_path = machine.label_path 
+
+    if test:
+        image_path = machine.image_path
+        lable_path = machine.label_path 
+
+    else:
+        image_path = machine.image_path
+        lable_path = machine.label_path 
 
     images = list() 
     masks = list()
