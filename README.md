@@ -16,3 +16,14 @@ Features
 
 
   <img src="https://production-media.paperswithcode.com/methods/Screen_Shot_2020-07-07_at_9.08.00_PM_rpNArED.png" >
+
+
+## Set up
+With python 3.10.12 
+
+simply run 
+```
+pip install -r requirements.txt
+```
+
+
