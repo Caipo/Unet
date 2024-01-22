@@ -10,7 +10,7 @@ import math
 import os
 import csv
 
-def save_model(model, epochs, batch_size, losses):
+def save_model(model, epochs, batch_size, losses, train_time):
     save_path =  Path(os.getcwd()) / 'Save'
 
     index = str(len(glob(str(save_path) + '/*.keras'))) # For refrence 
@@ -26,6 +26,7 @@ def save_model(model, epochs, batch_size, losses):
     'Optimizer' : 'Adam',
     'Batch Size' : batch_size,
     'Loss': 'Binary Cross Entropy', 
+    'Train_Time' : train_time,
     'Epocs': epochs,
     'Date': date.today()
     }
@@ -34,16 +35,11 @@ def save_model(model, epochs, batch_size, losses):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
-def load_data():
+def load_data(patch = True, ):
     machine = Machine() 
 
-    if test:
-        image_path = machine.image_path
-        lable_path = machine.label_path 
-
-    else:
-        image_path = machine.image_path
-        lable_path = machine.label_path 
+    image_path = machine.image_path
+    lable_path = machine.label_path 
 
     images = list() 
     masks = list()
@@ -61,7 +57,10 @@ def load_data():
 
         # Normalizing 
         image = image.astype('float32') / 255
-       
+
+        if not patch:
+            yield image
+
         # Padding 
         pad_height =  math.ceil(height / size) * size - height 
         pad_width =  math.ceil(width / size) * size - width 

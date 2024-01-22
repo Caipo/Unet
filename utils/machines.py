@@ -18,7 +18,7 @@ class Machine():
             self.image_path = Path(r'/home/jin/Data/Numpy')
             self.label_path = Path(r'/home/jin/Data/Mask')
 
-            self.test_image_path = Path(r'/Users/work/Data/damage/Numpy')
+            self.test_image_path = Path(r'/Users/work/Data/Test')
             self.test_label_path = Path(r'/Users/work/Data/damage/Mask')
 
             self.predic_path  = Path(r'/home/jin/Unet/Save/Predic')

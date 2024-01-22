@@ -51,7 +51,7 @@ def make_picture(model, image, mask, i):
         img = np.concatenate((img1, raw_img ), axis=1)
         img = np.concatenate((img, img2), axis = 1)
 
-        Image.fromarray(img).save(f'{str(predic_path)}/{str(idx)}-{str(i)}.jpg' )
+        Image.fromarray(img).save(f'{str(predic_path)}/{str(idx) + 10 *  str(i)}.jpg')
 
 def eval():
     index = str(len(glob("save_path" + "/*.keras")))
