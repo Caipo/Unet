@@ -8,8 +8,8 @@ class Machine():
             self.image_path = Path(r'/Users/work/Data/damage/Numpy')
             self.label_path = Path(r'/Users/work/Data/damage/Mask')
 
-            self.test_image_path = Path(r'/Users/work/Data/damage/Numpy')
-            self.test_label_path = Path(r'/Users/work/Data/damage/Mask')
+            #self.test_image_path = Path(r'/Users/work/Data/damage/Numpy')
+            #self.test_label_path = Path(r'/Users/work/Data/damage/Mask')
 
             self.predic_path  = Path(r'/Users/work/Unet/Save/')
 
@@ -18,8 +18,8 @@ class Machine():
             self.image_path = Path(r'/home/jin/Data/Numpy')
             self.label_path = Path(r'/home/jin/Data/Mask')
 
-            self.test_image_path = Path(r'/Users/work/Data/Test')
-            self.test_label_path = Path(r'/Users/work/Data/damage/Mask')
+            self.test_image_path = Path(r'/home/jin/Data/Test')
+            self.test_label_path = Path(r'/home/jin/Data/Test_Mask')
 
             self.predic_path  = Path(r'/home/jin/Unet/Save/Predic')
         
@@ -30,7 +30,7 @@ class Machine():
             os.makedirs(self.save_path)
         
 
-        losses_path = self.save_path / 'losses' 
+        losses_path = self.save_path / 'Losses' 
         if not os.path.exists(losses_path):
             os.makedirs(losses_path)
 

@@ -1,18 +1,21 @@
 if __name__ == '__main__':
     import sys
+    
     model_id = input('Pick Model: ')
-    sys.path.append('..')
+    sys.path.append('/home/jin/Unet')
 
 print('Starting Imports')
 import numpy as np
 import tensorflow as tf
+import math
 from tqdm import tqdm
 from pathlib import Path
 from glob import glob
 from model import unet 
+from patchify import patchify, unpatchify
 from PIL import Image
 from datetime import date
-from utils.aux import load_data
+from utils.aux import load_data, load_test
 from utils.machines import Machine
 import os
 import csv
@@ -73,13 +76,51 @@ def eval():
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
+def label_test_images(model, confidence = 0.1):
+  test_dataset = tf.data.Dataset.from_generator(load_test,
+  output_types=(tf.float32, tf.float32)
+  )
+  count = 0 
+  for image, mask in test_dataset.batch(1).take(5):
+      # Batch, Height, Width, Channels 
+      image = image[0]
+      mask = mask[0]
+      height, width, _ = image.shape
+        
+      # padding calulations
+      size = 572
+      pad_height =  math.ceil(height / size) * size - height
+      pad_width =  math.ceil(width / size) * size - width
+      image = np.pad(image, [(0,pad_height), (0, pad_width), (0,0)])
+      mask = np.pad(mask, [(0,pad_height), (0, pad_width), (0,0)])
+      
+      image_patched = np.squeeze(patchify(image, (572, 572, 3), step=size))
+      mask_patched = np.squeeze(patchify(mask, (572, 572, 2), step=size))
+
+      rows = image_patched.shape[0] 
+      cols = image_patched.shape[1] 
+      
+      # flattening
+      image_patched = image_patched.reshape( (rows * cols, 572, 572, 3))
+      new_img = np.copy(image_patched) * 255
+    
+     
+      for i in range(rows * cols):
+          for idx, pred in enumerate(model.predict( image_patched[i].reshape(( 1, size, size, 3)))):
+              img1 = new_img[i] 
+              img1[pred[:,:,0] >= confidence] = (255, 0, 0)
+
+      new_img = new_img.reshape( (rows, cols, 1, size, size, 3))
+      new_height, new_width = new_img.shape[0], new_img.shape[1]
+      stiched = unpatchify(new_img, (new_height * size , new_width * size, 3))
+      stiched = stiched.astype(np.uint8)
+      Image.fromarray(stiched).save(f'{str(predic_path)}/{str(count)}.jpg')
+      count += 1
+       
+
 if __name__ == '__main__':
     print('Loading Model')
     save_path = Path('/home/jin/Unet/Save')
     model = tf.keras.models.load_model(str(save_path) +  f'/{model_id}.keras')
     
-    dataset = tf.data.Dataset.from_generator(load_data, output_types=(tf.float32, tf.float32))
-    i = 0
-    for images, masks in dataset.batch(10).take(5):
-        make_picture(model, images, masks, i)
-        i += 1
+    label_test_images(model)

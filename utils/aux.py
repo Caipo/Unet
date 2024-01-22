@@ -26,7 +26,7 @@ def save_model(model, epochs, batch_size, losses, train_time):
     'Optimizer' : 'Adam',
     'Batch Size' : batch_size,
     'Loss': 'Binary Cross Entropy', 
-    'Train_Time' : train_time,
+    'Train_Time' : round(train_time),
     'Epocs': epochs,
     'Date': date.today()
     }
@@ -35,11 +35,16 @@ def save_model(model, epochs, batch_size, losses, train_time):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
-def load_data(patch = True, ):
+def load_data(patch = True, test = False):
     machine = Machine() 
+    
+    if not test:
+        image_path = machine.image_path
+        label_path = machine.label_path 
 
-    image_path = machine.image_path
-    lable_path = machine.label_path 
+    else:
+        image_path = machine.test_image_path
+        label_path = machine.test_label_path
 
     images = list() 
     masks = list()
@@ -51,7 +56,7 @@ def load_data(patch = True, ):
     for path in files:
         # Loading
         image = np.load(Path(path))
-        mask = np.load(str(lable_path) + '/' + str(Path(path).name))
+        mask = np.load(str(label_path) + '/' + str(Path(path).name))
 
         height, width, _ = image.shape
 
@@ -59,7 +64,7 @@ def load_data(patch = True, ):
         image = image.astype('float32') / 255
 
         if not patch:
-            yield image
+            yield image, mask
 
         # Padding 
         pad_height =  math.ceil(height / size) * size - height 
@@ -79,3 +84,29 @@ def load_data(patch = True, ):
         for row in range(len(mask_patched)):
             for col in range(row):
                 yield image_patched[row][col], mask_patched[row][col]
+
+def load_test():
+    machine = Machine() 
+    
+    image_path = machine.test_image_path
+    label_path = machine.test_label_path
+
+    images = list() 
+    masks = list()
+    data = list()
+    files =  list(glob( str(image_path) + '/*.npy'))
+
+
+    size = 572
+    for path in files:
+        # Loading
+        image = np.load(Path(path))
+        mask = np.load(str(label_path) + '/' + str(Path(path).name))
+
+        height, width, _ = image.shape
+
+        # Normalizing 
+        image = image.astype('float32') / 255
+
+        yield image, mask
+
