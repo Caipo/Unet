@@ -34,7 +34,7 @@ def save_model(model, epochs, batch_size, losses):
         writer = csv.writer(file)
         writer.writerow(list(meta.values()))
 
-def load_data(test = False):
+def load_data():
     machine = Machine() 
 
     if test:

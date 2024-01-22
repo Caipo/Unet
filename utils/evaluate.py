@@ -1,5 +1,7 @@
 if __name__ == '__main__':
+    import sys
     model_id = input('Pick Model: ')
+    sys.path.append('..')
 
 print('Starting Imports')
 import numpy as np
@@ -11,10 +13,10 @@ from model import unet
 from PIL import Image
 from datetime import date
 from utils.aux import load_data
-from utils.machines
+from utils.machines import Machine
 import os
 import csv
-
+from random import randint
 
 
 
@@ -22,13 +24,13 @@ images = list()
 masks = list()
 
 print('Loading Data Set')
-m = machine()
+m = Machine()
 image_path = m.image_path
 label_path = m.label_path 
 predic_path = m.predic_path
 save_path = m.save_path
 
-def make_picture(model, image, mask):
+def make_picture(model, image, mask, i):
     output_path = Path(os.getcwd(),  'Output')
     image = np.array(image)
     mask = np.array(mask)
@@ -48,10 +50,10 @@ def make_picture(model, image, mask):
 
         img = np.concatenate((img1, raw_img ), axis=1)
         img = np.concatenate((img, img2), axis = 1)
-        Image.fromarray(img).save( str(predic_path) + '/' + str(idx) + '.jpg' )
 
-print("Testing")
-def save_eval(model):
+        Image.fromarray(img).save(f'{str(predic_path)}/{str(idx)}-{str(i)}.jpg' )
+
+def eval():
     index = str(len(glob("save_path" + "/*.keras")))
     
 
@@ -73,9 +75,11 @@ def save_eval(model):
 
 if __name__ == '__main__':
     print('Loading Model')
+    save_path = Path('/home/jin/Unet/Save')
     model = tf.keras.models.load_model(str(save_path) +  f'/{model_id}.keras')
     
     dataset = tf.data.Dataset.from_generator(load_data, output_types=(tf.float32, tf.float32))
-    for images, masks in dataset.batch(50).take(1):
-        make_picture(model, images, masks)
-
+    i = 0
+    for images, masks in dataset.batch(10).take(5):
+        make_picture(model, images, masks, i)
+        i += 1

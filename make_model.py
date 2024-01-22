@@ -10,8 +10,8 @@ from keras.metrics import Recall, IoU, Accuracy
 from keras.optimizers.legacy import Adam
 
 # Nobs and dials
-epochs = 1000 
-batch_size = 1 
+epochs = 300 
+batch_size = 4
 optimizer = 'adam'
 learning_rate = 0.001
 
@@ -50,6 +50,7 @@ save_model(model, epochs, batch_size, losses)
 
 print('Making Predictions')
 # Sample predictions from the train set
-for images, masks in dataset.batch(20).take(1):
-    make_picture(model, images, masks)
-
+i = 0 
+for images, masks in dataset.batch(10).take(5):
+    make_picture(model, images, masks, i)
+    i += 1

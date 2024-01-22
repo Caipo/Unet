@@ -1,5 +1,6 @@
 Save/
 logs/
 Output/
+__pycache__
 **.sw*
 .DS_Store

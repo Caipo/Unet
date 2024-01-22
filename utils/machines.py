@@ -13,6 +13,7 @@ class Machine():
 
             self.predic_path  = Path(r'/Users/work/Unet/Save/')
 
+
         elif platform.system() == 'Linux':
             self.image_path = Path(r'/home/jin/Data/Numpy')
             self.label_path = Path(r'/home/jin/Data/Mask')
@@ -25,13 +26,13 @@ class Machine():
 
 
         self.save_path = Path(os.getcwd(),  'Save')
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+        if not os.path.exists(self.save_path):
+            os.makedirs(self.save_path)
         
 
-        losses_path = save_path / 'losses' 
+        losses_path = self.save_path / 'losses' 
         if not os.path.exists(losses_path):
             os.makedirs(losses_path)
 
-        if not os.path.exists(predic_path):
-            os.makedirs(predic_path)
+        if not os.path.exists(self.predic_path):
+            os.makedirs(self.predic_path)
